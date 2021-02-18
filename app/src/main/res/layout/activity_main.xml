@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity">
+    <data>
+        <import type = "android.view.View" />
+        <variable
+            name = "searchModel"
+            type = "com.example.namufinder.MainActivity.SearchModel"/>
+    </data>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:layout_marginTop="10dp">
+            <EditText
+                android:id = "@+id/edtSearch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Search"
+                android:background="@null"
+                android:text = "@={searchModel.searchKeyword}"
+                android:textAlignment="center"
+                android:maxLines="1"
+                android:textSize = "20dp" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity = "center"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text = "공백은 검색할 수 없습니다."
+                    android:textSize="15dp"
+                    android:textColor="#DC143C"
+                    android:textStyle="bold"
+                    android:textAlignment="center"
+                    android:visibility="@{searchModel.searchKeyword.length() > 0 ? View.INVISIBLE : View.VISIBLE}"/>
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text = "검색"
+                    android:textStyle="bold"
+                    android:textSize="15dp"
+                    android:textColor="#000000"
+                    android:background="@drawable/block"
+                    android:onClick="@{(view) -> searchModel.click(view)}"
+                    android:visibility="@{searchModel.searchKeyword.length() > 0 ? View.VISIBLE : View.INVISIBLE}"/>
+            </FrameLayout>
+        </LinearLayout>
+        <TextView
+            android:id = "@+id/line"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/line" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id = "@+id/recycler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:layout_marginTop="10dp"/>
+
+    </LinearLayout>
+</layout>
