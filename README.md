@@ -9,3 +9,6 @@
 # Running Capture
 ![1](https://user-images.githubusercontent.com/65227900/108320173-c7f42000-7205-11eb-8c3e-5aee55127ace.jpg)
 
+![2](https://user-images.githubusercontent.com/65227900/108320280-eeb25680-7205-11eb-9083-023ee7346301.jpg)
+
+![3](https://user-images.githubusercontent.com/65227900/108320304-fa9e1880-7205-11eb-8c24-23021866bf76.jpg)
