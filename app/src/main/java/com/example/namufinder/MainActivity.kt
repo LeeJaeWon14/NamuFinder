@@ -27,7 +27,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //setContentView(R.layout.activity_main)
         supportActionBar!!.title = "검색"
 
         //Binding Class는 build.gradle에서 dataBinding을 활성화 시켜주면 자동생성
@@ -50,7 +49,6 @@ class MainActivity : AppCompatActivity() {
         var searchKeyword : ObservableField<String> = ObservableField()
 
         fun click(view : View) {
-            //Toast.makeText(this@MainActivity, "${searchModelInit.searchKeyword.get()} 검색 결과", Toast.LENGTH_SHORT).show()
 
             object : Thread() {
                 override fun run() {

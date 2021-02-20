@@ -11,8 +11,7 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         permissionCheck()
-        //Thread(Runnable { Thread.sleep(2000) })
-        Thread.sleep(1000)
+        Thread.sleep(500)
         startActivity(Intent(this@SplashActivity, MainActivity::class.java))
     }
 

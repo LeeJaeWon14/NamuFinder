@@ -26,7 +26,7 @@ class WebViewActivity : AppCompatActivity() {
 
         webViewButton.setOnClickListener { finish() }
         webViewButtonAdd.setOnClickListener {
-            TODO("yet")
+            TODO("Yet")
         }
     }
 
