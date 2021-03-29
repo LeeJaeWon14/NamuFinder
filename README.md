@@ -7,8 +7,6 @@
   3. Jsoup 1.13.1
   
 # Running Capture
-![1](https://user-images.githubusercontent.com/65227900/108320173-c7f42000-7205-11eb-8c3e-5aee55127ace.jpg)
+![KakaoTalk_20210329_160552893](https://user-images.githubusercontent.com/65227900/112798987-b6c1ed00-90a8-11eb-867e-1f8f31211dbf.png)
 
-![2](https://user-images.githubusercontent.com/65227900/108320280-eeb25680-7205-11eb-9083-023ee7346301.jpg)
-
-![3](https://user-images.githubusercontent.com/65227900/108320304-fa9e1880-7205-11eb-8c24-23021866bf76.jpg)
+![KakaoTalk_20210329_160456125](https://user-images.githubusercontent.com/65227900/112798895-867a4e80-90a8-11eb-91c4-11678db4449d.png)
