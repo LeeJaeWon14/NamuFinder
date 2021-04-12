@@ -16,4 +16,5 @@
   1. RecyclerView에 구현된 Item을 클릭하여 WebView에서 실행되도록 구현
  
 ![image](https://user-images.githubusercontent.com/65227900/114378991-3e3c4f80-9bc3-11eb-8e87-304a1d0de66e.png)
-  1. Room Database를 이용하여 즐겨
+  1. Room Database를 이용하여 즐겨찾기 구현
+ 
