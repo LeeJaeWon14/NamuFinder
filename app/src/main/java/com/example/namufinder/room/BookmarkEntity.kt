@@ -6,14 +6,11 @@ import java.io.Serializable
 
 /***
  * Room DB의 Table이 될
- * Entity 클래스 정의
+ * Entity 클래스(data class) 정의
  */
 @Entity
-class BookmarkEntity : Serializable {
-    @PrimaryKey(autoGenerate = true)
-    val id : Int = 0
-
-    val keyword : String = ""
-
-    val url : String = ""
-}
+data class BookmarkEntity(
+    @PrimaryKey(autoGenerate = true) val id : Int = 0,
+    val keyword : String = "",
+    val url : String = "")
+    : Serializable

@@ -6,15 +6,15 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.namufinder.R
-import kotlinx.android.synthetic.main.recycle_view_item.view.*
 import org.jsoup.select.Elements
-import java.lang.NullPointerException
 
 class MyRecyclerAdapter(itemCnt : Int = 1, listener : OnItemClickListener? = null, items : Elements?) : RecyclerView.Adapter<MyRecyclerAdapter.MyRecyclerViewHolder>() {
+    //ItemClickListener 정의
     interface OnItemClickListener {
         fun onItemClick(v : View, pos : Int, title : String)
     }
 
+    //Holder 정의
     class MyRecyclerViewHolder(itemView : View, listener : OnItemClickListener?) : RecyclerView.ViewHolder(itemView) {
         private val textView = itemView.findViewById<TextView>(R.id.recycleItem)
         init {
@@ -31,10 +31,9 @@ class MyRecyclerAdapter(itemCnt : Int = 1, listener : OnItemClickListener? = nul
         }
     }
 
-    //private lateinit var listener : OnItemClickListener
     private var listener : OnItemClickListener?
-    private var cnt : Int
-    private var items : Elements?
+    private var cnt : Int // item의 갯수
+    private var items : Elements? // 크롤링으로 받아온 뿌려줄 elements 객체
     init {
         this.listener = listener
         this.cnt = itemCnt
@@ -52,7 +51,6 @@ class MyRecyclerAdapter(itemCnt : Int = 1, listener : OnItemClickListener? = nul
     }
 
     override fun onBindViewHolder(holder: MyRecyclerViewHolder, position: Int) {
-        //holder.setTitle("갤럭시")
         holder.setTitle(items!!.get(position).text().toString())
     }
 }

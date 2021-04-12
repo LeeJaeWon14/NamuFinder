@@ -2,10 +2,17 @@ package com.example.namufinder
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.webkit.WebSettings
 import android.webkit.WebViewClient
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import com.example.namufinder.room.BookmarkDatabase
+import com.example.namufinder.room.BookmarkEntity
 import kotlinx.android.synthetic.main.activity_web_view.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
 
 class WebViewActivity : AppCompatActivity() {
@@ -28,7 +35,26 @@ class WebViewActivity : AppCompatActivity() {
 
         webViewButton.setOnClickListener { finish() }
         webViewButtonAdd.setOnClickListener {
+            val bookmark = BookmarkEntity(1, myBundle?.getString("keyword")!!, webView.url!!) //bookmark entity 생성
+            //insert 실행
+            CoroutineScope(Dispatchers.IO).launch {
+                BookmarkDatabase.getInstance(this@WebViewActivity)
+                    .getBookmarkDAO()
+                    .insertBookmark(bookmark)
+            }
             Toast.makeText(this@WebViewActivity, "add Bookmark", Toast.LENGTH_SHORT).show()
+        }
+        webViewButtonAdd.setOnLongClickListener {
+            CoroutineScope(Dispatchers.IO).launch {
+                val entities = BookmarkDatabase.getInstance(this@WebViewActivity)
+                    .getBookmarkDAO()
+                    .getBookmark()
+
+                for(entity in entities) {
+                    println("${entity.id} / ${entity.keyword} / ${entity.url}")
+                }
+            }
+            false
         }
     }
 

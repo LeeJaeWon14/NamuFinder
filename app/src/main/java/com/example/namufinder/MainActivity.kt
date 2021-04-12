@@ -13,9 +13,16 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.*
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.namufinder.adapter.BookmarkRecyclerAdapter
 import com.example.namufinder.adapter.MyRecyclerAdapter
 import com.example.namufinder.databinding.ActivityMainBinding
+import com.example.namufinder.room.BookmarkDatabase
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.bookmark_layout.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 
@@ -32,6 +39,9 @@ class MainActivity : AppCompatActivity() {
         //Binding Class는 build.gradle에서 dataBinding을 활성화 시켜주면 자동생성
         val binding : ActivityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.searchModel = searchModelInit
+
+
+
     }
 
     private var time : Long = 0
@@ -49,7 +59,6 @@ class MainActivity : AppCompatActivity() {
         var searchKeyword : ObservableField<String> = ObservableField()
 
         fun click(view : View) {
-
             object : Thread() {
                 override fun run() {
                     super.run()
@@ -82,6 +91,35 @@ class MainActivity : AppCompatActivity() {
             //키패드 자동 다운
             val imm = this@MainActivity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(currentFocus!!.windowToken, 0)
+        }
+
+        fun selectBookmark(view : View) {
+            //Dialog 초기화
+            val dlgView = View.inflate(this@MainActivity, R.layout.bookmark_layout, null)
+            val dlg = AlertDialog.Builder(this@MainActivity).create()
+            dlg.setView(dlgView)
+            dlg.window?.setBackgroundDrawableResource(R.drawable.block)
+
+            val recView = dlgView.findViewById<RecyclerView>(R.id.bookmarkRecycler)
+            //Room Database 조회
+            CoroutineScope(Dispatchers.IO).launch {
+                val entities = BookmarkDatabase.getInstance(this@MainActivity)
+                    .getBookmarkDAO()
+                    .getBookmark()
+
+                recView.layoutManager = LinearLayoutManager(this@MainActivity)
+                recView.adapter = BookmarkRecyclerAdapter(entities, listener = object : BookmarkRecyclerAdapter.OnItemClickListener {
+                    override fun onItemClick(v: View, pos: Int, title: String) {
+                        val markBundle = Bundle()
+                        markBundle.putString("keyword", title.split(". ")[1])
+                        val intent = Intent(this@MainActivity, WebViewActivity::class.java)
+                        intent.putExtra("myBundle", markBundle)
+                        startActivity(intent)
+                    }
+                })
+            }
+
+            dlg.show()
         }
     }
 }
