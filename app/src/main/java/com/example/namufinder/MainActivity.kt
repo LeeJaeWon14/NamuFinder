@@ -53,18 +53,18 @@ class MainActivity : AppCompatActivity() {
             object : Thread() {
                 override fun run() {
                     super.run()
+                    //나무위키 검색결과 크롤링
                     croll = CrollingTask.searchTask("https://namu.wiki/Search?q=${searchModelInit.searchKeyword.get()}")
-                    for(item : Element in croll!!) {
-                        println(item.text().toString())
-                    }
-                    itemCount = croll!!.size
 
+                    //크롤링으로 가져온 elements 사이즈로 RecyclerView의 item 수 지정
+                    itemCount = croll!!.size
 
                     //UI스레드에서 RecyclerView 동적 생성
                     this@MainActivity.runOnUiThread(Thread() {
                         if(itemCount == 0) {
                             Toast.makeText(this@MainActivity, "검색결과가 없습니다.", Toast.LENGTH_SHORT).show()
                         }
+                        //RecyclerView 생성
                         recycler.layoutManager = LinearLayoutManager(this@MainActivity)
                         recycler.adapter = MyRecyclerAdapter(itemCount, listener =  object : MyRecyclerAdapter.OnItemClickListener {
                             override fun onItemClick(v: View, pos: Int, title : String) {
@@ -79,6 +79,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }.start()
 
+            //키패드 자동 다운
             val imm = this@MainActivity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(currentFocus!!.windowToken, 0)
         }
