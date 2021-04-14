@@ -10,8 +10,8 @@ import java.io.Serializable
  * Entity 클래스(data class) 정의
  */
 @Entity
-data class BookmarkEntity(
-    @PrimaryKey(autoGenerate = true) val id : Int = 0,
-    val keyword : String = "",
-    @Ignore val url : String = "")
-    : Serializable
+data class BookmarkEntity (
+    @PrimaryKey(autoGenerate = true) var id : Int = 0,
+    var keyword : String = "",
+    @Ignore var url : String = ""
+)   : Serializable

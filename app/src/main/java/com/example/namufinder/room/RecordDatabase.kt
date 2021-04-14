@@ -8,7 +8,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [RecordEntity::class], version = 1)
+@Database(entities = [RecordEntity::class], version = 1) //스키마 확인 불필요
 abstract class RecordDatabase : RoomDatabase() {
     abstract fun getRecordDAO() : RecordDAO
     companion object {

@@ -114,10 +114,10 @@ class MainActivity : AppCompatActivity() {
 
                 recView.layoutManager = LinearLayoutManager(this@MainActivity)
                 recView.adapter = BookmarkRecyclerAdapter(entities, clickListener = object : BookmarkRecyclerAdapter.OnItemClickListener {
-                    override fun onItemClick(v: View, pos: Int, title: String) { //리싸이클러뷰의 아이템 click listener 정의
+                    override fun onItemClick(v: View, pos: Int, title: String) { //리싸이클러뷰의 item click listener 정의
                         goWebView(title.split(". ")[1])
                     }
-                }, longClickListener = object : BookmarkRecyclerAdapter.OnItemLongClickListener { //리싸이클러뷰의 아이템 long click listener 정의
+                }, longClickListener = object : BookmarkRecyclerAdapter.OnItemLongClickListener { //리싸이클러뷰의 item long click listener 정의
                     override fun onItemLongClick(v: View, pos: Int, title: String) {
                         //entity get
                         val entity = entities.get(pos)
@@ -131,10 +131,6 @@ class MainActivity : AppCompatActivity() {
 
             dlg.show()
         }
-
-        fun longClick(view : View) {
-            Toast.makeText(this@MainActivity, "Long Click", Toast.LENGTH_SHORT).show()
-        }
     }
 
     private fun listAdapterInit() : ArrayAdapter<String> {
@@ -145,7 +141,7 @@ class MainActivity : AppCompatActivity() {
                 .getRecord()
 
             for(entity in entities) {
-                arrayList.add(entity.keword)
+                arrayList.add(entity.keyword)
             }
         }
         val adapter = ArrayAdapter<String>(this@MainActivity, android.R.layout.simple_list_item_1, arrayList)
