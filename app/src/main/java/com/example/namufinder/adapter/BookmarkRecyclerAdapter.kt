@@ -8,17 +8,25 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.namufinder.R
 import com.example.namufinder.room.BookmarkEntity
 
-class BookmarkRecyclerAdapter(entities : List<BookmarkEntity>, listener : OnItemClickListener) : RecyclerView.Adapter<BookmarkRecyclerAdapter.BookmarkRecyclerViewHolder>() {
+class BookmarkRecyclerAdapter(
+    entities : List<BookmarkEntity>,
+    clickListener : OnItemClickListener,
+    longClickListener : OnItemLongClickListener
+) : RecyclerView.Adapter<BookmarkRecyclerAdapter.BookmarkRecyclerViewHolder>() {
     interface OnItemClickListener {
         fun onItemClick(v : View, pos : Int, title : String)
+    }
+    interface OnItemLongClickListener {
+        fun onItemLongClick(v : View, pos : Int, title : String)
     }
 
     //Field 정의
     private val entities = entities
-    private val listener = listener
+    private val listener = clickListener
+    private val longClickListener = longClickListener
 
     //ViewHolder 정의
-    class BookmarkRecyclerViewHolder(itemView : View, listener : OnItemClickListener?) : RecyclerView.ViewHolder(itemView) {
+    class BookmarkRecyclerViewHolder(itemView : View, listener : OnItemClickListener?, longClickListener : OnItemLongClickListener?) : RecyclerView.ViewHolder(itemView) {
         private val textView : TextView = itemView.findViewById(R.id.recycleItem)
         init {
             itemView.setOnClickListener {
@@ -26,6 +34,13 @@ class BookmarkRecyclerAdapter(entities : List<BookmarkEntity>, listener : OnItem
                 if(pos != RecyclerView.NO_POSITION && listener != null) {
                     listener.onItemClick(itemView, pos, textView.text.toString())
                 }
+            }
+            itemView.setOnLongClickListener {
+                val pos = adapterPosition
+                if(pos != RecyclerView.NO_POSITION && longClickListener != null) {
+                    longClickListener.onItemLongClick(itemView, pos, textView.text.toString())
+                }
+                false
             }
         }
 
@@ -36,7 +51,7 @@ class BookmarkRecyclerAdapter(entities : List<BookmarkEntity>, listener : OnItem
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookmarkRecyclerViewHolder {
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.recycle_view_item, parent, false)
-        return BookmarkRecyclerViewHolder(itemView, listener)
+        return BookmarkRecyclerViewHolder(itemView, listener, longClickListener)
     }
 
     override fun getItemCount(): Int {

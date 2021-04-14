@@ -1,6 +1,7 @@
 package com.example.namufinder.room
 
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import java.io.Serializable
 
@@ -12,5 +13,5 @@ import java.io.Serializable
 data class BookmarkEntity(
     @PrimaryKey(autoGenerate = true) val id : Int = 0,
     val keyword : String = "",
-    val url : String = "")
+    @Ignore val url : String = "")
     : Serializable

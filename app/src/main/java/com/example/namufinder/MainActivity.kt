@@ -8,8 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.webkit.WebView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.*
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,11 +17,14 @@ import com.example.namufinder.adapter.BookmarkRecyclerAdapter
 import com.example.namufinder.adapter.MyRecyclerAdapter
 import com.example.namufinder.databinding.ActivityMainBinding
 import com.example.namufinder.room.BookmarkDatabase
+import com.example.namufinder.room.BookmarkEntity
+import com.example.namufinder.room.RecordDatabase
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.bookmark_layout.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 
@@ -40,12 +42,15 @@ class MainActivity : AppCompatActivity() {
         val binding : ActivityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.searchModel = searchModelInit
 
-
-
+        recordList.adapter = listAdapterInit()
+        recordList.setOnItemClickListener { parent, view, position, id ->
+            //goWebView(parent.adapter.getItem(position).toString())
+            Toast.makeText(this@MainActivity, parent.adapter.getItem(position).toString(), Toast.LENGTH_SHORT).show()
+        }
     }
 
     private var time : Long = 0
-    override fun onBackPressed() {
+    override fun onBackPressed() { //뒤로가기 클릭 시 종료 메소드
         if(System.currentTimeMillis() - time >= 2000) {
             time = System.currentTimeMillis()
             Toast.makeText(this@MainActivity, "한번 더 누르면 종료합니다", Toast.LENGTH_SHORT).show()
@@ -74,16 +79,15 @@ class MainActivity : AppCompatActivity() {
                             Toast.makeText(this@MainActivity, "검색결과가 없습니다.", Toast.LENGTH_SHORT).show()
                         }
                         //RecyclerView 생성
-                        recycler.layoutManager = LinearLayoutManager(this@MainActivity)
-                        recycler.adapter = MyRecyclerAdapter(itemCount, listener =  object : MyRecyclerAdapter.OnItemClickListener {
-                            override fun onItemClick(v: View, pos: Int, title : String) {
-                                myIntent = Intent(this@MainActivity, WebViewActivity::class.java)
-                                val myBundle = Bundle()
-                                myBundle.putString("keyword", title)
-                                myIntent.putExtra("myBundle", myBundle)
-                                startActivity(myIntent)
-                            }
-                        }, items = croll)
+                        else {
+                            recordList.visibility = View.INVISIBLE
+                            recycler.layoutManager = LinearLayoutManager(this@MainActivity)
+                            recycler.adapter = MyRecyclerAdapter(itemCount, listener =  object : MyRecyclerAdapter.OnItemClickListener {
+                                override fun onItemClick(v: View, pos: Int, title : String) {
+                                    goWebView(title)
+                                }
+                            }, items = croll)
+                        }
                     })
                 }
             }.start()
@@ -103,23 +107,56 @@ class MainActivity : AppCompatActivity() {
             val recView = dlgView.findViewById<RecyclerView>(R.id.bookmarkRecycler)
             //Room Database 조회
             CoroutineScope(Dispatchers.IO).launch {
+                //entities select
                 val entities = BookmarkDatabase.getInstance(this@MainActivity)
                     .getBookmarkDAO()
                     .getBookmark()
 
                 recView.layoutManager = LinearLayoutManager(this@MainActivity)
-                recView.adapter = BookmarkRecyclerAdapter(entities, listener = object : BookmarkRecyclerAdapter.OnItemClickListener {
-                    override fun onItemClick(v: View, pos: Int, title: String) {
-                        val markBundle = Bundle()
-                        markBundle.putString("keyword", title.split(". ")[1])
-                        val intent = Intent(this@MainActivity, WebViewActivity::class.java)
-                        intent.putExtra("myBundle", markBundle)
-                        startActivity(intent)
+                recView.adapter = BookmarkRecyclerAdapter(entities, clickListener = object : BookmarkRecyclerAdapter.OnItemClickListener {
+                    override fun onItemClick(v: View, pos: Int, title: String) { //리싸이클러뷰의 아이템 click listener 정의
+                        goWebView(title.split(". ")[1])
+                    }
+                }, longClickListener = object : BookmarkRecyclerAdapter.OnItemLongClickListener { //리싸이클러뷰의 아이템 long click listener 정의
+                    override fun onItemLongClick(v: View, pos: Int, title: String) {
+                        //entity get
+                        val entity = entities.get(pos)
+                        //가져온 entity로 delete 실행
+                        BookmarkDatabase.getInstance(this@MainActivity)
+                            .getBookmarkDAO()
+                            .deleteBookmark(entity)
                     }
                 })
             }
 
             dlg.show()
         }
+
+        fun longClick(view : View) {
+            Toast.makeText(this@MainActivity, "Long Click", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun listAdapterInit() : ArrayAdapter<String> {
+        val arrayList : ArrayList<String> = ArrayList<String>()
+        CoroutineScope(Dispatchers.Default).launch {
+            val entities = RecordDatabase.getInstance(this@MainActivity)
+                .getRecordDAO()
+                .getRecord()
+
+            for(entity in entities) {
+                arrayList.add(entity.keword)
+            }
+        }
+        val adapter = ArrayAdapter<String>(this@MainActivity, android.R.layout.simple_list_item_1, arrayList)
+        return adapter
+    }
+
+    private fun goWebView(keyword : String) {
+        val bundle = Bundle()
+        bundle.putString("keyword", keyword)
+        val intent = Intent(this@MainActivity, WebViewActivity::class.java)
+        intent.putExtra("myBundle", bundle)
+        startActivity(intent)
     }
 }

@@ -44,18 +44,6 @@ class WebViewActivity : AppCompatActivity() {
             }
             Toast.makeText(this@WebViewActivity, "add Bookmark", Toast.LENGTH_SHORT).show()
         }
-        webViewButtonAdd.setOnLongClickListener {
-            CoroutineScope(Dispatchers.IO).launch {
-                val entities = BookmarkDatabase.getInstance(this@WebViewActivity)
-                    .getBookmarkDAO()
-                    .getBookmark()
-
-                for(entity in entities) {
-                    println("${entity.id} / ${entity.keyword} / ${entity.url}")
-                }
-            }
-            false
-        }
     }
 
     override fun onBackPressed() {
