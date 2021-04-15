@@ -2,18 +2,15 @@ package com.example.namufinder
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
 import android.webkit.WebSettings
 import android.webkit.WebViewClient
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
-import com.example.namufinder.room.BookmarkDatabase
+import com.example.namufinder.room.MyRoomDatabase
 import com.example.namufinder.room.BookmarkEntity
 import kotlinx.android.synthetic.main.activity_web_view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.*
 
 class WebViewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,10 +32,10 @@ class WebViewActivity : AppCompatActivity() {
 
         webViewButton.setOnClickListener { finish() }
         webViewButtonAdd.setOnClickListener {
-            val bookmark = BookmarkEntity(1, myBundle?.getString("keyword")!!, webView.url!!) //bookmark entity 생성
+            val bookmark = BookmarkEntity(myBundle?.getString("keyword")!!, webView.url!!) //bookmark entity 생성
             //insert 실행
             CoroutineScope(Dispatchers.IO).launch {
-                BookmarkDatabase.getInstance(this@WebViewActivity)
+                MyRoomDatabase.getInstance(this@WebViewActivity)
                     .getBookmarkDAO()
                     .insertBookmark(bookmark)
             }

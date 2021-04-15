@@ -9,7 +9,6 @@ object CrollingTask {
     lateinit var document: Document
     lateinit var elements: Elements
     fun searchTask(url : String) : Elements {
-        System.out.println("url >> ${url}")
         try {
             document = Jsoup.connect(url).get()
             elements = document.select("div.search-item h4")

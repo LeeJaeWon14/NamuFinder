@@ -7,7 +7,6 @@ import android.os.*
 import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.webkit.WebView
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.*
@@ -16,16 +15,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.namufinder.adapter.BookmarkRecyclerAdapter
 import com.example.namufinder.adapter.MyRecyclerAdapter
 import com.example.namufinder.databinding.ActivityMainBinding
-import com.example.namufinder.room.BookmarkDatabase
-import com.example.namufinder.room.BookmarkEntity
-import com.example.namufinder.room.RecordDatabase
+import com.example.namufinder.room.MyRoomDatabase
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.bookmark_layout.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 
 class MainActivity : AppCompatActivity() {
@@ -42,11 +37,11 @@ class MainActivity : AppCompatActivity() {
         val binding : ActivityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.searchModel = searchModelInit
 
-        recordList.adapter = listAdapterInit()
+        /*recordList.adapter = listAdapterInit()
         recordList.setOnItemClickListener { parent, view, position, id ->
             //goWebView(parent.adapter.getItem(position).toString())
             Toast.makeText(this@MainActivity, parent.adapter.getItem(position).toString(), Toast.LENGTH_SHORT).show()
-        }
+        }*/
     }
 
     private var time : Long = 0
@@ -64,33 +59,29 @@ class MainActivity : AppCompatActivity() {
         var searchKeyword : ObservableField<String> = ObservableField()
 
         fun click(view : View) {
-            object : Thread() {
-                override fun run() {
-                    super.run()
-                    //나무위키 검색결과 크롤링
-                    croll = CrollingTask.searchTask("https://namu.wiki/Search?q=${searchModelInit.searchKeyword.get()}")
+            CoroutineScope(Dispatchers.IO).launch {
+                //나무위키 검색결과 크롤링
+                croll = CrollingTask.searchTask("https://namu.wiki/Search?q=${searchModelInit.searchKeyword.get()}")
 
-                    //크롤링으로 가져온 elements 사이즈로 RecyclerView의 item 수 지정
-                    itemCount = croll!!.size
+                //크롤링으로 가져온 elements 사이즈로 RecyclerView의 item 수 지정
+                itemCount = croll!!.size
 
-                    //UI스레드에서 RecyclerView 동적 생성
-                    this@MainActivity.runOnUiThread(Thread() {
-                        if(itemCount == 0) {
-                            Toast.makeText(this@MainActivity, "검색결과가 없습니다.", Toast.LENGTH_SHORT).show()
-                        }
-                        //RecyclerView 생성
-                        else {
-                            recordList.visibility = View.INVISIBLE
-                            recycler.layoutManager = LinearLayoutManager(this@MainActivity)
-                            recycler.adapter = MyRecyclerAdapter(itemCount, listener =  object : MyRecyclerAdapter.OnItemClickListener {
-                                override fun onItemClick(v: View, pos: Int, title : String) {
-                                    goWebView(title)
-                                }
-                            }, items = croll)
-                        }
-                    })
+                //UI스레드에서 RecyclerView 동적 생성
+                withContext(Dispatchers.Main) {
+                    if(itemCount == 0) {
+                        Toast.makeText(this@MainActivity, "검색결과가 없습니다.", Toast.LENGTH_SHORT).show()
+                    }
+                    //RecyclerView 생성
+                    else {
+                        recycler.layoutManager = LinearLayoutManager(this@MainActivity)
+                        recycler.adapter = MyRecyclerAdapter(itemCount, listener =  object : MyRecyclerAdapter.OnItemClickListener {
+                            override fun onItemClick(v: View, pos: Int, title : String) {
+                                goWebView(title)
+                            }
+                        }, items = croll)
+                    }
                 }
-            }.start()
+            }
 
             //키패드 자동 다운
             val imm = this@MainActivity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -108,7 +99,7 @@ class MainActivity : AppCompatActivity() {
             //Room Database 조회
             CoroutineScope(Dispatchers.IO).launch {
                 //entities select
-                val entities = BookmarkDatabase.getInstance(this@MainActivity)
+                val entities = MyRoomDatabase.getInstance(this@MainActivity)
                     .getBookmarkDAO()
                     .getBookmark()
 
@@ -119,12 +110,21 @@ class MainActivity : AppCompatActivity() {
                     }
                 }, longClickListener = object : BookmarkRecyclerAdapter.OnItemLongClickListener { //리싸이클러뷰의 item long click listener 정의
                     override fun onItemLongClick(v: View, pos: Int, title: String) {
-                        //entity get
-                        val entity = entities.get(pos)
-                        //가져온 entity로 delete 실행
-                        BookmarkDatabase.getInstance(this@MainActivity)
-                            .getBookmarkDAO()
-                            .deleteBookmark(entity)
+                        AlertDialog.Builder(this@MainActivity)
+                            .setMessage("삭제하시겠습니까?")
+                            .setPositiveButton("삭제", object : DialogInterface.OnClickListener {
+                                override fun onClick(dialog: DialogInterface?, which: Int) {
+                                    //entity get
+                                    val entity = entities.get(pos)
+                                    //가져온 entity로 delete 실행
+                                    MyRoomDatabase.getInstance(this@MainActivity)
+                                        .getBookmarkDAO()
+                                        .deleteBookmark(entity)
+                                    dlg.dismiss()
+                                }
+                            })
+                            .setNegativeButton("취소", null)
+                            .show()
                     }
                 })
             }
@@ -136,13 +136,7 @@ class MainActivity : AppCompatActivity() {
     private fun listAdapterInit() : ArrayAdapter<String> {
         val arrayList : ArrayList<String> = ArrayList<String>()
         CoroutineScope(Dispatchers.Default).launch {
-            val entities = RecordDatabase.getInstance(this@MainActivity)
-                .getRecordDAO()
-                .getRecord()
 
-            for(entity in entities) {
-                arrayList.add(entity.keyword)
-            }
         }
         val adapter = ArrayAdapter<String>(this@MainActivity, android.R.layout.simple_list_item_1, arrayList)
         return adapter

@@ -86,25 +86,13 @@
             android:layout_height="wrap_content"
             android:background="@drawable/line" />
 
-        <FrameLayout
+        <androidx.recyclerview.widget.RecyclerView
+            android:id = "@+id/recycler"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity = "center">
-            <androidx.recyclerview.widget.RecyclerView
-                android:id = "@+id/recycler"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingLeft="20dp"
-                android:paddingRight="20dp"
-                android:layout_marginTop="10dp"
-                android:visibility="invisible"/>
-            <ListView
-                android:id = "@+id/recordList"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:divider="@android:color/transparent"
-                android:visibility="@{searchModel.searchKeyword.length() > 0 ? View.INVISIBLE : View.INVISIBLE}" />
-        </FrameLayout>
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:layout_marginTop="10dp" />
 
     </LinearLayout>
 </layout>
