@@ -11,7 +11,7 @@ interface BookmarkDAO {
     @Query("SELECT * FROM bookmarkentity")
     fun getBookmark() : List<BookmarkEntity>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE) //중복값이 있을 경우 설정하는 어노테이션, 설정값은 무시
+    @Insert(onConflict = OnConflictStrategy.IGNORE) //중복값이 있을 경우 설정하는 어노테이션, 설정값은 무시
     fun insertBookmark(entity: BookmarkEntity)
 
     @Update

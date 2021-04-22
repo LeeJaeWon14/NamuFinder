@@ -6,6 +6,7 @@ import java.io.Serializable
 
 @Entity
 data class RecordEntity (
-    @PrimaryKey(autoGenerate = true) var id : Int = 0,
     var keyword : String = ""
-)   : Serializable
+)   : Serializable {
+    @PrimaryKey(autoGenerate = true) var id : Int = 0
+}

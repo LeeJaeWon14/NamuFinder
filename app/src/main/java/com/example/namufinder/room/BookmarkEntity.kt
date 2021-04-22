@@ -11,7 +11,8 @@ import java.io.Serializable
  */
 @Entity
 data class BookmarkEntity (
-    @PrimaryKey(autoGenerate = true) var id : Int = 0,
     var keyword : String = "",
     @Ignore var url : String = ""
-)   : Serializable
+)   : Serializable {
+    @PrimaryKey(autoGenerate = true) var id : Int = 0
+}
