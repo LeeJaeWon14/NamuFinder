@@ -61,6 +61,12 @@ class RecordRecyclerAdapter(
     }
 
     override fun onBindViewHolder(holder: RecordRecyclerViewHolder, position: Int) {
-        holder.setTitle(entities.get(position).keyword)
+        if(entities.isEmpty()) {
+            println("entities is empty")
+            holder.setTitle("기록이 없습니다")
+        }
+        else {
+            holder.setTitle(entities.get(position).keyword)
+        }
     }
 }

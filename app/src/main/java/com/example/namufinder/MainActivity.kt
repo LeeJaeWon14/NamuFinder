@@ -85,10 +85,10 @@ class MainActivity : AppCompatActivity() {
                             }
                         }, items = croll)
                     }
-                }
 
-                topLine.visibility = View.VISIBLE
-                bottomLine.visibility = View.VISIBLE
+                    topLine.visibility = View.VISIBLE
+                    bottomLine.visibility = View.VISIBLE
+                }
             }
 
             //키패드 자동 다운

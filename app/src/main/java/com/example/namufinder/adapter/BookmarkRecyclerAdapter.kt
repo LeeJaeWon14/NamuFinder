@@ -59,6 +59,11 @@ class BookmarkRecyclerAdapter(
     }
 
     override fun onBindViewHolder(holder: BookmarkRecyclerViewHolder, position: Int) {
-        holder.setTitle("${position +1}. ${entities.get(position).keyword}")
+        if(entities.isEmpty()) {
+            holder.setTitle("기록이 없습니다")
+        }
+        else {
+            holder.setTitle("${position +1}. ${entities.get(position).keyword}")
+        }
     }
 }
