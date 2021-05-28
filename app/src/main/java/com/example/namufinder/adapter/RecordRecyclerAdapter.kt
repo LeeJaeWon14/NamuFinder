@@ -1,5 +1,6 @@
 package com.example.namufinder.adapter
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,44 +8,31 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.namufinder.R
-import com.example.namufinder.room.BookmarkEntity
+import com.example.namufinder.room.MyRoomDatabase
 import com.example.namufinder.room.RecordEntity
+import com.google.android.material.snackbar.Snackbar
 
 class RecordRecyclerAdapter(
     entities : List<RecordEntity>,
-    clickListener : OnItemClickListener,
-    deleteListener : OnItemDeleteListener
+    clickListener : OnItemClickListener
 ) : RecyclerView.Adapter<RecordRecyclerAdapter.RecordRecyclerViewHolder>() {
     interface OnItemClickListener {
-        fun onItemClick(v : View, pos : Int, title : String)
+        fun onItemClick(title : String)
     }
-    interface OnItemDeleteListener {
+    /*interface OnItemDeleteListener {
         fun onItemDeleteListener(v : View, pos : Int, entities: List<RecordEntity>)
-    }
+    }*/
 
     //Field 정의
-    private val entities = entities
+    private val entities = entities.toMutableList()
     private val listener = clickListener
-    private val deleteListener = deleteListener
+    //private val deleteListener = deleteListener
+    private var context : Context? = null
 
     //ViewHolder 정의
-    class RecordRecyclerViewHolder(itemView : View, listener : OnItemClickListener?, deleteListener : OnItemDeleteListener?, entities : List<RecordEntity>) : RecyclerView.ViewHolder(itemView) {
-        private val textView : TextView = itemView.findViewById(R.id.recordItem)
-        private val deleteButton : Button = itemView.findViewById(R.id.deleteButton)
-        init {
-            itemView.setOnClickListener {
-                val pos = adapterPosition
-                if(pos != RecyclerView.NO_POSITION && listener != null) {
-                    listener.onItemClick(itemView, pos, textView.text.toString())
-                }
-            }
-            deleteButton.setOnClickListener {
-                val pos = adapterPosition
-                if(pos != RecyclerView.NO_POSITION && deleteListener != null) {
-                    deleteListener.onItemDeleteListener(itemView, pos, entities)
-                }
-            }
-        }
+    class RecordRecyclerViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView) {
+        val textView : TextView = itemView.findViewById(R.id.recordItem)
+        val deleteButton : Button = itemView.findViewById(R.id.deleteButton)
 
         fun setTitle(title : String) {
             this.textView.text = title
@@ -53,7 +41,8 @@ class RecordRecyclerAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecordRecyclerViewHolder {
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.record_recycle_view_item, parent, false)
-        return RecordRecyclerViewHolder(itemView, listener, deleteListener, entities)
+        context = parent.context!!
+        return RecordRecyclerViewHolder(itemView)
     }
 
     override fun getItemCount(): Int {
@@ -68,5 +57,27 @@ class RecordRecyclerAdapter(
         else {
             holder.setTitle(entities.get(position).keyword)
         }
+
+        holder.textView.setOnClickListener {
+            if(position != RecyclerView.NO_POSITION) {
+                listener.onItemClick(holder.textView.text.toString())
+            }
+        }
+        holder.deleteButton.setOnClickListener {
+            if(position != RecyclerView.NO_POSITION) {
+                //deleteListener.onItemDeleteListener(holder.itemView, position, entities)
+
+                removeItem(position)
+                Snackbar.make(holder.itemView, "삭제되었습니다", Snackbar.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun removeItem(position : Int) {
+        val entity = entities.get(position)
+        entities.removeAt(position)
+        MyRoomDatabase.getInstance(context!!).getRecordDAO().deleteRecord(entity)
+
+        notifyDataSetChanged()
     }
 }

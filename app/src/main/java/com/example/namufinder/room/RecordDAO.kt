@@ -5,7 +5,7 @@ import androidx.room.*
 @Dao
 interface RecordDAO {
     @Query("SELECT * FROM recordentity")
-    fun getRecord() : List<RecordEntity>
+    fun getRecord() : MutableList<RecordEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertRecrod(entity : RecordEntity)

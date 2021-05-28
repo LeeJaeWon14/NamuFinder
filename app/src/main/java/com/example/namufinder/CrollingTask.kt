@@ -2,12 +2,11 @@ package com.example.namufinder
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 
 object CrollingTask {
-    lateinit var document: Document
-    lateinit var elements: Elements
+    private lateinit var document: Document
+    private lateinit var elements: Elements
     fun searchTask(url : String) : Elements {
         try {
             document = Jsoup.connect(url).get()

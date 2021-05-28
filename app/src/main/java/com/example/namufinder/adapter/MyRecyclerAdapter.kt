@@ -8,36 +8,22 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.namufinder.R
 import org.jsoup.select.Elements
 
-class MyRecyclerAdapter(itemCnt : Int = 1, listener : OnItemClickListener? = null, items : Elements?) : RecyclerView.Adapter<MyRecyclerAdapter.MyRecyclerViewHolder>() {
+class MyRecyclerAdapter(
+    private var listener: OnItemClickListener? = null, // 크롤링으로 받아온 뿌려줄 elements 객체
+    private var items: Elements?
+) : RecyclerView.Adapter<MyRecyclerAdapter.MyRecyclerViewHolder>() {
     //ItemClickListener 정의
     interface OnItemClickListener {
-        fun onItemClick(v : View, pos : Int, title : String)
+        fun onItemClick(pos : Int, title : String)
     }
 
     //Holder 정의
     class MyRecyclerViewHolder(itemView : View, listener : OnItemClickListener?) : RecyclerView.ViewHolder(itemView) {
-        private val textView = itemView.findViewById<TextView>(R.id.recycleItem)
-        init {
-            itemView.setOnClickListener {
-                val pos = adapterPosition
-                if(pos != RecyclerView.NO_POSITION && listener != null) {
-                    listener.onItemClick(itemView, pos, textView.text.toString())
-                }
-            }
-        }
+        val textView = itemView.findViewById<TextView>(R.id.recycleItem)
 
         fun setTitle(title : String) {
             this.textView.text = title
         }
-    }
-
-    private var listener : OnItemClickListener?
-    private var cnt : Int // item의 갯수
-    private var items : Elements? // 크롤링으로 받아온 뿌려줄 elements 객체
-    init {
-        this.listener = listener
-        this.cnt = itemCnt
-        this.items = items
     }
 
 
@@ -47,10 +33,16 @@ class MyRecyclerAdapter(itemCnt : Int = 1, listener : OnItemClickListener? = nul
     }
 
     override fun getItemCount(): Int {
-        return cnt
+        return items!!.size
     }
 
     override fun onBindViewHolder(holder: MyRecyclerViewHolder, position: Int) {
         holder.setTitle(items!!.get(position).text().toString())
+
+        holder.textView.setOnClickListener {
+            if(position != RecyclerView.NO_POSITION && listener != null) {
+                listener!!.onItemClick(position, holder.textView.text.toString())
+            }
+        }
     }
 }

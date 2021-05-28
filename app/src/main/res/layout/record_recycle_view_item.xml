@@ -14,14 +14,13 @@
         android:textStyle="bold"
         android:text = "Record Item"
         android:layout_weight="1"/>
+
     <Button
+        style = "@style/ButtonTheme"
         android:id = "@+id/deleteButton"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:background="@drawable/block"
         android:text = "X"
-        android:textStyle="bold"
-        android:layout_gravity="right"
-        android:textColor="@color/black"/>
+        android:layout_gravity="right"/>
 </LinearLayout>

@@ -1,15 +1,15 @@
 package com.example.namufinder
 
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
-import android.os.*
-import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.*
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.databinding.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ObservableField
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.namufinder.adapter.BookmarkRecyclerAdapter
@@ -20,7 +20,6 @@ import com.example.namufinder.room.BookmarkDAO
 import com.example.namufinder.room.MyRoomDatabase
 import com.example.namufinder.room.RecordDAO
 import com.example.namufinder.room.RecordEntity
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -73,8 +72,8 @@ class MainActivity : AppCompatActivity() {
                     //RecyclerView 생성
                     else {
                         recycler.layoutManager = LinearLayoutManager(this@MainActivity)
-                        recycler.adapter = MyRecyclerAdapter(itemCount, listener =  object : MyRecyclerAdapter.OnItemClickListener {
-                            override fun onItemClick(v: View, pos: Int, title : String) {
+                        recycler.adapter = MyRecyclerAdapter(listener =  object : MyRecyclerAdapter.OnItemClickListener {
+                            override fun onItemClick(pos: Int, title : String) {
                                 goWebView(title)
 
                                 //검색한 단어를 DB에 저장
@@ -108,40 +107,34 @@ class MainActivity : AppCompatActivity() {
             CoroutineScope(Dispatchers.IO).launch {
                 //entities select
                 val entities = getBookmarkDAO().getBookmark()
+                if(entities.isEmpty()) {
+                    Toast.makeText(this@MainActivity, "목록이 없습니다", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
 
-                recView.layoutManager = LinearLayoutManager(this@MainActivity)
-                recView.adapter = BookmarkRecyclerAdapter(entities, clickListener = object : BookmarkRecyclerAdapter.OnItemClickListener {
-                    override fun onItemClick(v: View, pos: Int, title: String) {
-                        //리싸이클러뷰의 item click listener 정의
+                withContext(Dispatchers.Main) {
+                    recView.layoutManager = LinearLayoutManager(this@MainActivity)
+                    recView.adapter = BookmarkRecyclerAdapter(entities, object : BookmarkRecyclerAdapter.OnItemClickListener {
+                        override fun onItemClick(title: String) {
+                            //해당 항목으로 웹뷰 이동
+                            goWebView(title.split(". ")[1])
+                        }
+                    })
 
-                        //해당 항목으로 웹뷰 이동
-                        goWebView(title.split(". ")[1])
-                    }
-                }, longClickListener = object : BookmarkRecyclerAdapter.OnItemLongClickListener {
-                    //리싸이클러뷰의 item long click listener 정의
-                    override fun onItemLongClick(v: View, pos: Int, title: String) {
-                        AlertDialog.Builder(this@MainActivity)
-                            .setMessage("삭제하시겠습니까?")
-                            .setPositiveButton("삭제", object : DialogInterface.OnClickListener {
-                                override fun onClick(dialog: DialogInterface?, which: Int) {
-                                    val entity = entities.get(pos)
-                                    //가져온 entity로 delete 실행
-                                    getBookmarkDAO().deleteBookmark(entity)
-                                }
-                            })
-                            .setNegativeButton("취소", null)
-                            .show()
-                    }
-                })
+                    dlg.show()
+                }
             }
-            dlg.show()
         }
 
-        fun showRecrod(view : View) {
+        fun showRecord(view : View) {
             capabilityCheckRecord()
 
             val entities = getRecordDAO().getRecord()
-            println("entities >> ${entities.toString()}")
+            if(entities.isEmpty()) {
+                Toast.makeText(this@MainActivity, "목록이 없습니다", Toast.LENGTH_SHORT).show()
+                return
+            }
+            entities.reverse()
 
             val dlgView = View.inflate(this@MainActivity, R.layout.record_layout, null)
             val dlg = AlertDialog.Builder(this@MainActivity).create()
@@ -152,19 +145,9 @@ class MainActivity : AppCompatActivity() {
             val recordRecycler = dlgView.findViewById<RecyclerView>(R.id.recordRecycler)
             recordRecycler.layoutManager = LinearLayoutManager(this@MainActivity)
             recordRecycler.adapter = RecordRecyclerAdapter(entities, object : RecordRecyclerAdapter.OnItemClickListener {
-                override fun onItemClick(v: View, pos: Int, title: String) {
+                override fun onItemClick(title: String) {
                     //ItemClick 구현
                     goWebView(title)
-                }
-            }, object : RecordRecyclerAdapter.OnItemDeleteListener {
-                override fun onItemDeleteListener(v: View, pos: Int, entities: List<RecordEntity>) {
-                    //ItemDelete 구현
-                    val entity = entities.get(pos)
-                    getRecordDAO().deleteRecord(entity)
-
-                    entities.drop(pos)
-
-                    Snackbar.make(v, "삭제되었습니다", Snackbar.LENGTH_SHORT).show()
                 }
             })
 

@@ -1,48 +1,37 @@
 package com.example.namufinder.adapter
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.example.namufinder.R
 import com.example.namufinder.room.BookmarkEntity
+import com.example.namufinder.room.MyRoomDatabase
+import com.google.android.material.snackbar.Snackbar
 
 class BookmarkRecyclerAdapter(
     entities : List<BookmarkEntity>,
-    clickListener : OnItemClickListener,
-    longClickListener : OnItemLongClickListener
+    clickListener : OnItemClickListener
 ) : RecyclerView.Adapter<BookmarkRecyclerAdapter.BookmarkRecyclerViewHolder>() {
     interface OnItemClickListener {
-        fun onItemClick(v : View, pos : Int, title : String)
+        fun onItemClick(title : String)
     }
     interface OnItemLongClickListener {
-        fun onItemLongClick(v : View, pos : Int, title : String)
+        fun onItemLongClick(pos : Int, recEntities : List<BookmarkEntity>)
     }
 
     //Field 정의
-    private val entities = entities
+    private val entities = entities.toMutableList()
     private val listener = clickListener
-    private val longClickListener = longClickListener
+    private var context : Context? = null
 
     //ViewHolder 정의
-    class BookmarkRecyclerViewHolder(itemView : View, listener : OnItemClickListener?, longClickListener : OnItemLongClickListener?) : RecyclerView.ViewHolder(itemView) {
-        private val textView : TextView = itemView.findViewById(R.id.recycleItem)
-        init {
-            itemView.setOnClickListener {
-                val pos = adapterPosition
-                if(pos != RecyclerView.NO_POSITION && listener != null) {
-                    listener.onItemClick(itemView, pos, textView.text.toString())
-                }
-            }
-            itemView.setOnLongClickListener {
-                val pos = adapterPosition
-                if(pos != RecyclerView.NO_POSITION && longClickListener != null) {
-                    longClickListener.onItemLongClick(itemView, pos, textView.text.toString())
-                }
-                false
-            }
-        }
+    class BookmarkRecyclerViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView) {
+        val textView : TextView = itemView.findViewById(R.id.recycleItem)
+
 
         fun setTitle(title : String) {
             this.textView.text = title
@@ -51,7 +40,8 @@ class BookmarkRecyclerAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookmarkRecyclerViewHolder {
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.recycle_view_item, parent, false)
-        return BookmarkRecyclerViewHolder(itemView, listener, longClickListener)
+        context = parent.context
+        return BookmarkRecyclerViewHolder(itemView)
     }
 
     override fun getItemCount(): Int {
@@ -65,5 +55,35 @@ class BookmarkRecyclerAdapter(
         else {
             holder.setTitle("${position +1}. ${entities.get(position).keyword}")
         }
+
+        holder.textView.setOnClickListener {
+            val pos = position
+            if(pos != RecyclerView.NO_POSITION) {
+                listener.onItemClick(holder.textView.text.toString())
+            }
+        }
+
+        holder.textView.setOnLongClickListener {
+            val pos = position
+            if(pos != RecyclerView.NO_POSITION) {
+                AlertDialog.Builder(context!!)
+                    .setMessage("삭제하시겠습니까?")
+                    .setPositiveButton("삭제") { dialog, which ->
+                        removeItem(position)
+                        Snackbar.make(holder.itemView, "삭제되었습니다.", Snackbar.LENGTH_SHORT).show()
+                    }
+                    .setNegativeButton("취소", null)
+                    .show()
+            }
+            false
+        }
+    }
+
+    private fun removeItem(position : Int) {
+        val entity = entities.get(position)
+        entities.removeAt(position)
+        MyRoomDatabase.getInstance(context!!).getBookmarkDAO().deleteBookmark(entity)
+
+        notifyDataSetChanged()
     }
 }
