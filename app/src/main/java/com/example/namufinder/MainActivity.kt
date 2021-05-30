@@ -108,7 +108,7 @@ class MainActivity : AppCompatActivity() {
                 //entities select
                 val entities = getBookmarkDAO().getBookmark()
                 if(entities.isEmpty()) {
-                    Toast.makeText(this@MainActivity, "목록이 없습니다", Toast.LENGTH_SHORT).show()
+                    runOnUiThread(Runnable { Toast.makeText(this@MainActivity, "목록이 없습니다", Toast.LENGTH_SHORT).show() })
                     return@launch
                 }
 
